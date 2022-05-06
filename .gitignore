@@ -17,3 +17,6 @@
 # Shit	
 .vscode
 .DS_Store
+
+# Secrets
+db
