@@ -2,23 +2,23 @@ package main
 
 import "github.com/AlecAivazis/survey/v2"
 
-var newUser = []*survey.Question{
+var SimpleConnection = []*survey.Question{
 	{
-		Name:      "name",
-		Prompt:    &survey.Input{Message: "What is your name?"},
+		Name:      "key",
+		Prompt:    &survey.Input{Message: "What is the public key?"},
 		Validate:  survey.Required,
 		Transform: survey.Title,
 	},
 	{
-		Name: "color",
-		Prompt: &survey.Select{
-			Message: "Choose a color:",
-			Options: []string{"red", "blue", "green"},
-			Default: "red",
-		},
+		// Only ask for username if the user wants to save the key
+		Name:      "ip",
+		Prompt:    &survey.Input{Message: "What is the server IP?"},
+		Validate:  survey.Required,
+		Transform: survey.Title,
 	},
-	{
-		Name:   "age",
-		Prompt: &survey.Input{Message: "How old are you?"},
-	},
+}
+
+var prompt_confirmation = *&survey.Select{
+	Message: "Add RSA key?",
+	Options: []string{"Yes", "No"},
 }

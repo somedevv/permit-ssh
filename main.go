@@ -1,24 +1,50 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
+	"os/exec"
 	"time"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/boltdb/bolt"
 )
 
 var (
-	user       *string
-	key        *string
-	list_users *bool
+	user        *string
+	key         *string
+	list_users  *bool
+	interactive *bool
+	ip          *string
 )
 
+// var clear map[string]func() //create a map for storing clear funcs
+
 func init() {
-	user = flag.String("user", "", "username")
-	key = flag.String("key", "", "pub RSA key")
-	list_users = flag.Bool("list", false, "")
+	// clear = make(map[string]func()) //Initialize it
+	// clear["linux"] = func() {
+	// 	cmd := exec.Command("clear") //Linux
+	// 	cmd.Stdout = os.Stdout
+	// 	cmd.Run()
+	// }
+	// clear["macos"] = func() {
+	// 	cmd := exec.Command("clear") //Linux
+	// 	cmd.Stdout = os.Stdout
+	// 	cmd.Run()
+	// }
+	// clear["windows"] = func() {
+	// 	cmd := exec.Command("cmd", "/c", "cls") //Windows
+	// 	cmd.Stdout = os.Stdout
+	// 	cmd.Run()
+	// }
+
+	user = flag.String("user", "", "Username")
+	key = flag.String("key", "", "Pub RSA key")
+	ip = flag.String("ip", "", "IP address of the server")
+	list_users = flag.Bool("list", false, "List all saved users. If set all other flags are ignored")
+	interactive = flag.Bool("i", false, "Activate interactive mode. If set all other flags are ignored")
 }
 
 func main() {
@@ -41,6 +67,13 @@ func main() {
 
 	flag.Parse()
 
+	if *interactive == true {
+		if err := interactive_mode(db); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
 	// If true print all saved users and exit
 	// TODO: Make the print prettier
 	if *list_users == true {
@@ -58,7 +91,7 @@ func main() {
 		return
 	}
 
-	if *user == "" && *key == "" {
+	if *user == "" && *key == "" || *ip == "" {
 		fmt.Println("Usage: main.go")
 		flag.PrintDefaults()
 		return
@@ -88,7 +121,7 @@ func main() {
 			}
 			return nil
 		})
-
+		fmt.Printf("User saved successfully\n")
 		// If *user exist but *key not
 	} else if *user != "" && *key == "" {
 		db.View(func(tx *bolt.Tx) error {
@@ -104,12 +137,56 @@ func main() {
 			*key = string(v)
 			return nil
 		})
-
 	}
 
-	fmt.Printf("USER: %s   KEY: %s\n", *user, *key)
+	fmt.Printf("Adding SSH key to server...\n")
+	cmd := exec.Command("ssh", *ip, "echo "+*key+" >> .ssh/authorized_keys")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err = cmd.Run()
+	if err != nil {
+		log.Fatalf("Error while adding key: %s", err)
+	}
+	fmt.Printf("Key added successfully\n")
 
 	defer db.Close()
 	return
 
+}
+
+func interactive_mode(db *bolt.DB) error {
+	CallClear()
+
+	answers := struct {
+		Key          string
+		Ip           string
+		Confirmation string
+	}{}
+
+	err := survey.Ask(SimpleConnection, &answers)
+	if err != nil {
+		return err
+	}
+
+	CallClear()
+
+	fmt.Printf("USER: %s   KEY: %s\n", answers.Key, answers.Ip)
+
+	survey.AskOne(&prompt_confirmation, &answers.Confirmation, survey.WithValidator(survey.Required))
+
+	if answers.Confirmation == "Yes" {
+		cmd := exec.Command("ssh", answers.Ip, "echo "+answers.Key+" >> .ssh/authorized_keys")
+		var out bytes.Buffer
+		cmd.Stdout = &out
+		err := cmd.Run()
+		if err != nil {
+			log.Fatalf("Error while adding key: %s", err)
+		}
+		fmt.Printf("Key added successfully\n")
+	} else {
+		fmt.Printf("Key not added\n")
+	}
+
+	defer db.Close()
+	return nil
 }
