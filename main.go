@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"log"
-	"os/exec"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -23,23 +21,6 @@ var (
 // var clear map[string]func() //create a map for storing clear funcs
 
 func init() {
-	// clear = make(map[string]func()) //Initialize it
-	// clear["linux"] = func() {
-	// 	cmd := exec.Command("clear") //Linux
-	// 	cmd.Stdout = os.Stdout
-	// 	cmd.Run()
-	// }
-	// clear["macos"] = func() {
-	// 	cmd := exec.Command("clear") //Linux
-	// 	cmd.Stdout = os.Stdout
-	// 	cmd.Run()
-	// }
-	// clear["windows"] = func() {
-	// 	cmd := exec.Command("cmd", "/c", "cls") //Windows
-	// 	cmd.Stdout = os.Stdout
-	// 	cmd.Run()
-	// }
-
 	user = flag.String("user", "", "Username")
 	key = flag.String("key", "", "Pub RSA key")
 	ip = flag.String("ip", "", "IP address of the server")
@@ -139,15 +120,9 @@ func main() {
 		})
 	}
 
-	fmt.Printf("Adding SSH key to server...\n")
-	cmd := exec.Command("ssh", *ip, "echo "+*key+" >> .ssh/authorized_keys")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err = cmd.Run()
-	if err != nil {
-		log.Fatalf("Error while adding key: %s", err)
-	}
-	fmt.Printf("Key added successfully\n")
+	fmt.Printf("Checking if key already exists...\n")
+
+	AddKey(*ip, *key)
 
 	defer db.Close()
 	return
@@ -175,14 +150,7 @@ func interactive_mode(db *bolt.DB) error {
 	survey.AskOne(&prompt_confirmation, &answers.Confirmation, survey.WithValidator(survey.Required))
 
 	if answers.Confirmation == "Yes" {
-		cmd := exec.Command("ssh", answers.Ip, "echo "+answers.Key+" >> .ssh/authorized_keys")
-		var out bytes.Buffer
-		cmd.Stdout = &out
-		err := cmd.Run()
-		if err != nil {
-			log.Fatalf("Error while adding key: %s", err)
-		}
-		fmt.Printf("Key added successfully\n")
+		AddKey(answers.Ip, answers.Key)
 	} else {
 		fmt.Printf("Key not added\n")
 	}

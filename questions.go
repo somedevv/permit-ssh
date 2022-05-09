@@ -10,7 +10,6 @@ var SimpleConnection = []*survey.Question{
 		Transform: survey.Title,
 	},
 	{
-		// Only ask for username if the user wants to save the key
 		Name:      "ip",
 		Prompt:    &survey.Input{Message: "What is the server IP?"},
 		Validate:  survey.Required,
