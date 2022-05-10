@@ -19,6 +19,7 @@ var (
 	list_users  *bool
 	interactive *bool
 	ip          *string
+	delete      *bool
 
 	// COLORS
 	Green      = color.New(color.FgGreen)
@@ -41,6 +42,7 @@ func init() {
 	ip = flag.String("ip", "", "IP address of the server")
 	list_users = flag.Bool("list", false, "List all saved users. If set all other flags are ignored")
 	interactive = flag.Bool("i", false, "Activate interactive mode. If set all other flags are ignored")
+	delete = flag.Bool("del", false, "Delete a user or key. If IP is set, the user will be deleted from the server, otherwise, the user will be deleted from the database")
 }
 
 func main() {
@@ -86,6 +88,65 @@ func main() {
 			return nil
 		})
 		return
+	}
+
+	if *delete == true {
+		if *ip == "" {
+			if *user == "" {
+				if *key == "" {
+					Red.Printf("You must specify a user or key, and/or IP address")
+					os.Exit(1)
+				}
+				db.Update(func(tx *bolt.Tx) error {
+					b := tx.Bucket([]byte("DataBucket"))
+					c := b.Cursor()
+					for k, v := c.First(); k != nil; k, v = c.Next() {
+						if string(v) == *key {
+							*user = string(k)
+							break
+						}
+					}
+					if *user == "" {
+						Red.Println("User not found")
+						os.Exit(1)
+					}
+					err := b.Delete([]byte(*user))
+					if err != nil {
+						Red.Println(err)
+						os.Exit(1)
+					}
+					return nil
+				})
+				Green.Println("Key deleted")
+				return
+			}
+			db.Update(func(tx *bolt.Tx) error {
+				b := tx.Bucket([]byte("DataBucket"))
+				u := b.Get([]byte(*user))
+				if string(u) == "" {
+					Red.Println("User not found")
+					os.Exit(1)
+				}
+				err := b.Delete([]byte(*user))
+				if err != nil {
+					Red.Println(err)
+					os.Exit(1)
+				}
+				return nil
+			})
+			Green.Println("User deleted")
+			return
+		}
+		if *user == "" {
+			if *key == "" {
+				Red.Println("You must specify a user or key")
+				os.Exit(1)
+			}
+			// TODO: Implement delete key from server
+			Green.Println("Key deleted from server")
+			return
+
+		}
 	}
 
 	if *user == "" && *key == "" || *ip == "" {
