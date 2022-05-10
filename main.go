@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -35,7 +36,7 @@ func main() {
 	// Open the permit.db data file in the data directory.
 	// It will be created if it doesn't exist.
 	// TODO: Locate automatically the database file
-	db, err := bolt.Open("$HOME/.local/bin/.data/permit.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	db, err := bolt.Open(os.Getenv("HOME")+"/.local/bin/.data/permit.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		log.Fatal(err)
 	}
