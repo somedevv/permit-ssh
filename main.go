@@ -9,14 +9,28 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/boltdb/bolt"
+	"github.com/fatih/color"
 )
 
 var (
+	// FLAGS
 	user        *string
 	key         *string
 	list_users  *bool
 	interactive *bool
 	ip          *string
+
+	// COLORS
+	Green      = color.New(color.FgGreen)
+	Red        = color.New(color.FgRed)
+	Cyan       = color.New(color.FgCyan)
+	Yellow     = color.New(color.FgYellow)
+	White      = color.New(color.FgWhite)
+	GreenBold  = color.New(color.FgGreen, color.Bold)
+	RedBold    = color.New(color.FgRed, color.Bold)
+	CyanBold   = color.New(color.FgCyan, color.Bold)
+	YellowBold = color.New(color.FgYellow, color.Bold)
+	WhiteBold  = color.New(color.FgWhite, color.Bold)
 )
 
 // var clear map[string]func() //create a map for storing clear funcs
@@ -67,7 +81,7 @@ func main() {
 			c := b.Cursor()
 
 			for k, v := c.First(); k != nil; k, v = c.Next() {
-				fmt.Printf("USER: %s   KEY: %s\n", k, v)
+				PrintKeyandUser(string(k), string(v))
 			}
 			return nil
 		})
@@ -90,21 +104,23 @@ func main() {
 			if string(v) != *key {
 
 				// If the key is empty, the user didn't exist
+				// TODO: Prompt user for confirmation
 				if string(v) == "" {
-					fmt.Printf("Saving user...\n")
+					Yellow.Printf("Saving user...\n")
 
 				} else { // Else, the *key stored is different from the inputed one // TODO: Prompt the user to confirm *key update
-					fmt.Printf("Updating user key...\n")
+					Yellow.Printf("Updating user key...\n")
 				}
 
 				// The key is added to the DB and associated with the user
 				if err := b.Put([]byte(*user), []byte(*key)); err != nil {
-					log.Fatalf("Error: %s", err.Error())
+					Red.Printf("Error: %s", err.Error())
+					os.Exit(1)
 				}
 			}
 			return nil
 		})
-		fmt.Printf("User saved successfully\n")
+		Green.Printf("User saved successfully\n")
 		// If *user exist but *key not
 	} else if *user != "" && *key == "" {
 		db.View(func(tx *bolt.Tx) error {
@@ -115,14 +131,15 @@ func main() {
 			// because there is no supplied key to store
 			// TODO: Prompt user if they want to add the user by providing the key insted of quitting
 			if string(v) == "" {
-				log.Fatalf("The user %s doesn't exist", *user)
+				Red.Printf("The user ")
+				WhiteBold.Print(*user)
+				Red.Printf(" doesn't exist\n")
+				os.Exit(1)
 			}
 			*key = string(v)
 			return nil
 		})
 	}
-
-	fmt.Printf("Checking if key already exists...\n")
 
 	AddKey(*ip, *key)
 
@@ -147,14 +164,13 @@ func interactive_mode(db *bolt.DB) error {
 
 	CallClear()
 
-	fmt.Printf("USER: %s   KEY: %s\n", answers.Key, answers.Ip)
-
+	PrintKeyandIP(answers.Key, answers.Ip)
 	survey.AskOne(&prompt_confirmation, &answers.Confirmation, survey.WithValidator(survey.Required))
 
 	if answers.Confirmation == "Yes" {
 		AddKey(answers.Ip, answers.Key)
 	} else {
-		fmt.Printf("Key not added\n")
+		Red.Printf("Key not added\n")
 	}
 
 	defer db.Close()
