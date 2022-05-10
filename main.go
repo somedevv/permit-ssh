@@ -32,7 +32,8 @@ func main() {
 
 	// Open the permit.db data file in the data directory.
 	// It will be created if it doesn't exist.
-	db, err := bolt.Open(".data/permit.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	// TODO: Locate automatically the database file
+	db, err := bolt.Open("~/.local/bin/data/permit.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		log.Fatal(err)
 	}
