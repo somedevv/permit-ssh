@@ -93,7 +93,7 @@ func main() {
 				if string(v) == "" {
 					fmt.Printf("Saving user...\n")
 
-				} else { // Else, the *key stored is different from the inputed one // TODO: Promt the user to confirm *key update
+				} else { // Else, the *key stored is different from the inputed one // TODO: Prompt the user to confirm *key update
 					fmt.Printf("Updating user key...\n")
 				}
 
@@ -113,7 +113,7 @@ func main() {
 
 			// If the key is empty the user doesn't exist, the program quits
 			// because there is no supplied key to store
-			// TODO: Promt user if they want to add the user by providing the key insted of quitting
+			// TODO: Prompt user if they want to add the user by providing the key insted of quitting
 			if string(v) == "" {
 				log.Fatalf("The user %s doesn't exist", *user)
 			}
