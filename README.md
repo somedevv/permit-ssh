@@ -1,7 +1,7 @@
 # PERMIT-SSH
 
 Another CLI tool written in Go.  \
-**Permit** stores users and their SSH keys to help automate the task of autorising SSH connection in servers.
+**Permit** stores users and their SSH pub keys to help automate the task of autorising SSH connection in servers.
 
 ## Usage
 
