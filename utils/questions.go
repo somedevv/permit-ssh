@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"github.com/AlecAivazis/survey/v2"
@@ -24,7 +24,7 @@ var SimpleConnection = []*survey.Question{
 	},
 }
 
-var prompt_confirmation = *&survey.Select{
+var Prompt_confirmation = *&survey.Select{
 	Message: "Add RSA key?",
 	Options: []string{"Yes", "No"},
 }

@@ -9,7 +9,8 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/boltdb/bolt"
-	"github.com/fatih/color"
+	"github.com/somedevv/permit-ssh/colors"
+	"github.com/somedevv/permit-ssh/utils"
 )
 
 var (
@@ -20,18 +21,6 @@ var (
 	interactive *bool
 	ip          *string
 	delete      *bool
-
-	// COLORS
-	Green      = color.New(color.FgGreen)
-	Red        = color.New(color.FgRed)
-	Cyan       = color.New(color.FgCyan)
-	Yellow     = color.New(color.FgYellow)
-	White      = color.New(color.FgWhite)
-	GreenBold  = color.New(color.FgGreen, color.Bold)
-	RedBold    = color.New(color.FgRed, color.Bold)
-	CyanBold   = color.New(color.FgCyan, color.Bold)
-	YellowBold = color.New(color.FgYellow, color.Bold)
-	WhiteBold  = color.New(color.FgWhite, color.Bold)
 )
 
 // var clear map[string]func() //create a map for storing clear funcs
@@ -40,8 +29,8 @@ func init() {
 	user = flag.String("user", "", "Username")
 	key = flag.String("key", "", "Pub RSA key")
 	ip = flag.String("ip", "", "IP address of the server")
-	list_users = flag.Bool("list", false, "List all saved users. If set all other flags are ignored")
-	interactive = flag.Bool("i", false, "Activate interactive mode. If set all other flags are ignored")
+	list_users = flag.Bool("list", false, "List all saved users. If set all other flags are ignocolors.red")
+	interactive = flag.Bool("i", false, "Activate interactive mode. If set all other flags are ignocolors.red")
 	delete = flag.Bool("del", false, "Delete a user or key. If IP is set, the user will be deleted from the server, otherwise, the user will be deleted from the database")
 }
 
@@ -83,7 +72,7 @@ func main() {
 			c := b.Cursor()
 
 			for k, v := c.First(); k != nil; k, v = c.Next() {
-				PrintKeyandUser(string(k), string(v))
+				utils.PrintKeyandUser(string(k), string(v))
 			}
 			return nil
 		})
@@ -94,7 +83,7 @@ func main() {
 		if *ip == "" {
 			if *user == "" {
 				if *key == "" {
-					Red.Printf("You must specify a user or key, and/or IP address")
+					colors.Red.Printf("You must specify a user or key, and/or IP address")
 					os.Exit(1)
 				}
 				db.Update(func(tx *bolt.Tx) error {
@@ -107,49 +96,49 @@ func main() {
 						}
 					}
 					if *user == "" {
-						Red.Println("User not found")
+						colors.Red.Println("User not found")
 						os.Exit(1)
 					}
 					err := b.Delete([]byte(*user))
 					if err != nil {
-						Red.Println(err)
+						colors.Red.Println(err)
 						os.Exit(1)
 					}
 					return nil
 				})
-				Green.Println("Key deleted")
+				colors.Green.Println("Key deleted")
 				return
 			}
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
 				u := b.Get([]byte(*user))
 				if string(u) == "" {
-					Red.Println("User not found")
+					colors.Red.Println("User not found")
 					os.Exit(1)
 				}
 				err := b.Delete([]byte(*user))
 				if err != nil {
-					Red.Println(err)
+					colors.Red.Println(err)
 					os.Exit(1)
 				}
 				return nil
 			})
-			Green.Println("User deleted")
+			colors.Green.Println("User deleted")
 			return
 		}
 		if *user == "" {
 			if *key == "" {
-				Red.Println("You must specify a user or key")
+				colors.Red.Println("You must specify a user or key")
 				os.Exit(1)
 			}
 			// TODO: Implement delete key from server
-			Green.Println("Key deleted from server")
+			colors.Green.Println("Key deleted from server")
 			return
 
 		}
 	}
 
-	if *user == "" && *key == "" || *ip == "" {
+	if *user == "" && *key == "" || *ip == "" && (*user == "" && *key == "") {
 		fmt.Println("Usage: main.go")
 		flag.PrintDefaults()
 		return
@@ -161,27 +150,30 @@ func main() {
 			b := tx.Bucket([]byte("DataBucket"))
 			v := b.Get([]byte(*user))
 
-			// Checks if the *key of the user equals the one stored in the db
+			// Checks if the *key of the user equals the one stocolors.red in the db
 			if string(v) != *key {
 
 				// If the key is empty, the user didn't exist
 				// TODO: Prompt user for confirmation
 				if string(v) == "" {
-					Yellow.Printf("Saving user...\n")
+					colors.Yellow.Println("Saving user...")
 
-				} else { // Else, the *key stored is different from the inputed one // TODO: Prompt the user to confirm *key update
-					Yellow.Printf("Updating user key...\n")
+				} else { // Else, the *key stocolors.red is different from the inputed one // TODO: Prompt the user to confirm *key update
+					colors.Yellow.Println("Updating user key...")
 				}
 
 				// The key is added to the DB and associated with the user
 				if err := b.Put([]byte(*user), []byte(*key)); err != nil {
-					Red.Printf("Error: %s", err.Error())
+					colors.Red.Printf("Error: %s\n", err.Error())
 					os.Exit(1)
 				}
+			} else {
+				colors.Red.Println("User already exists")
+				os.Exit(0)
 			}
 			return nil
 		})
-		Green.Printf("User saved successfully\n")
+		colors.Green.Println("User saved successfully")
 		// If *user exist but *key not
 	} else if *user != "" && *key == "" {
 		db.View(func(tx *bolt.Tx) error {
@@ -192,9 +184,9 @@ func main() {
 			// because there is no supplied key to store
 			// TODO: Prompt user if they want to add the user by providing the key insted of quitting
 			if string(v) == "" {
-				Red.Printf("The user ")
-				WhiteBold.Print(*user)
-				Red.Printf(" doesn't exist\n")
+				colors.Red.Printf("The user ")
+				colors.WhiteBold.Print(*user)
+				colors.Red.Println(" doesn't exist")
 				os.Exit(1)
 			}
 			*key = string(v)
@@ -202,7 +194,9 @@ func main() {
 		})
 	}
 
-	AddKey(*ip, *key)
+	if *ip != "" {
+		utils.AddKey(*ip, *key)
+	}
 
 	defer db.Close()
 	return
@@ -210,7 +204,7 @@ func main() {
 }
 
 func interactive_mode(db *bolt.DB) error {
-	CallClear()
+	utils.CallClear()
 
 	answers := struct {
 		Key          string
@@ -218,20 +212,20 @@ func interactive_mode(db *bolt.DB) error {
 		Confirmation string
 	}{}
 
-	err := survey.Ask(SimpleConnection, &answers)
+	err := survey.Ask(utils.SimpleConnection, &answers)
 	if err != nil {
 		return err
 	}
 
-	CallClear()
+	utils.CallClear()
 
-	PrintKeyandIP(answers.Key, answers.Ip)
-	survey.AskOne(&prompt_confirmation, &answers.Confirmation, survey.WithValidator(survey.Required))
+	utils.PrintKeyandIP(answers.Key, answers.Ip)
+	survey.AskOne(&utils.Prompt_confirmation, &answers.Confirmation, survey.WithValidator(survey.Required))
 
 	if answers.Confirmation == "Yes" {
-		AddKey(answers.Ip, answers.Key)
+		utils.AddKey(answers.Ip, answers.Key)
 	} else {
-		Red.Printf("Key not added\n")
+		colors.Red.Println("Key not added")
 	}
 
 	defer db.Close()

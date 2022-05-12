@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"bytes"
@@ -6,6 +6,8 @@ import (
 	"net"
 	"os"
 	"os/exec"
+
+	"github.com/somedevv/permit-ssh/colors"
 )
 
 func CallClear() {
@@ -15,7 +17,7 @@ func CallClear() {
 }
 
 func AddKey(ip string, key string) {
-	Yellow.Printf("Checking if key already exists in server [%s]\n", ip)
+	colors.Yellow.Printf("Checking if key already exists in server [%s]\n", ip)
 	// Checks if the key already exists
 	cmd := exec.Command("ssh", ip, "grep -Fxq "+key+" .ssh/authorized_keys")
 	var out bytes.Buffer
@@ -23,33 +25,33 @@ func AddKey(ip string, key string) {
 	err := cmd.Run()
 	if err != nil {
 		// If the key doesn't exist, the key is added to the authorized_keys file
-		Yellow.Printf("Adding SSH key to server...\n")
+		colors.Yellow.Println("Adding SSH key to server...")
 		cmd = exec.Command("ssh", ip, "echo "+key+" >> .ssh/authorized_keys")
 		cmd.Stdout = &out
 		err = cmd.Run()
 		if err != nil {
-			Red.Printf("Error while adding key: %s", err)
+			colors.Red.Printf("Error while adding key: %s", err)
 			os.Exit(1)
 		}
-		Green.Printf("Key added successfully\n")
+		colors.Green.Println("Key added successfully")
 	} else {
 		// If the key already exists, the program quits
-		Yellow.Printf("Key already added to server\n")
+		colors.Yellow.Println("Key already added to server")
 	}
 }
 
 func PrintKeyandUser(k string, v string) {
-	Green.Print("USER: ")
-	White.Printf("%s   ", k)
-	Green.Print("KEY: ")
-	White.Printf("%s\n", v)
+	colors.Green.Print("USER: ")
+	colors.White.Printf("%s   ", k)
+	colors.Green.Print("KEY: ")
+	colors.White.Printf("%s\n", v)
 }
 
 func PrintKeyandIP(k string, v string) {
-	Green.Print("KEY: ")
-	White.Printf("%s   ", k)
-	Green.Print("IP: ")
-	White.Printf("%s\n", v)
+	colors.Green.Print("KEY: ")
+	colors.White.Printf("%s   ", k)
+	colors.Green.Print("IP: ")
+	colors.White.Printf("%s\n", v)
 }
 
 func CheckIPAddress(ip string) error {
