@@ -9,9 +9,16 @@ Another CLI tool written in Go.  \
 permit [options]
 ```
 
-Usage example:
+Usage examples:
 
 ``` bash
+# Only with a key
+permit -key RSA... -ip root@XX.XX.XX.XX
+
+# Only with a saved user
+permit -user example -ip root@XX.XX.XX.XX
+
+# Both
 permit -key RSA... -user example -ip root@XX.XX.XX.XX
 ```
 
