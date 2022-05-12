@@ -83,7 +83,7 @@ func main() {
 		if *ip == "" {
 			if *user == "" {
 				if *key == "" {
-					colors.Red.Printf("You must specify a user or key, and/or IP address")
+					colors.Red.Println("You must specify a user or key, and/or IP address")
 					os.Exit(1)
 				}
 				db.Update(func(tx *bolt.Tx) error {

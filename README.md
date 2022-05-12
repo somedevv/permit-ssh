@@ -25,28 +25,28 @@ permit -key RSA... -user example -ip root@XX.XX.XX.XX
 ## Options
 
 ``` text
- -h, --help
+ -help, --help
   Prints help information.
 
- -u, --user
+ -user, --user
   User to add.
 
- -k, --key
+ -key, --key
   SSH key to add.
-
- -l, --list
-  List stored users.
-
-   // TODO //
-
- -d, --delete
-  Delete user.
-
- -s, --search
-  Search for user.
  
  -ip, --ip
   IP address of the machine.
 
+ -list, --list
+  List stored users.
+
+ -del, --del
+  Delete saved user in DB.
+
+   // TODO //
+
+ -s, --search
+  Search for user.
+ 
    // TODO //
 ```
