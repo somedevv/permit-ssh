@@ -23,8 +23,6 @@ var (
 	delete      *bool
 )
 
-// var clear map[string]func() //create a map for storing clear funcs
-
 func init() {
 	user = flag.String("user", "", "Username")
 	key = flag.String("key", "", "Pub RSA key")
