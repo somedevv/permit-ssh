@@ -95,35 +95,28 @@ func main() {
 			})
 			utils.DeleteKey(*ip, *key)
 			os.Exit(0)
-		} else if *user != "" {
+		} else if *user != "" || *key != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
-				u := b.Get([]byte(*user))
-				if string(u) == "" {
-					colors.Red.Println("User not found")
-					os.Exit(1)
-				}
-				err := b.Delete([]byte(*user))
-				if err != nil {
-					colors.Red.Println(err)
-					os.Exit(1)
-				}
-				return nil
-			})
-		} else if *key != "" {
-			db.Update(func(tx *bolt.Tx) error {
-				b := tx.Bucket([]byte("DataBucket"))
-				c := b.Cursor()
-				for u, k := c.First(); k != nil; u, k = c.Next() {
-					if string(k) == *key {
-						*user = string(u)
-						break
+				if *user != "" {
+					u := b.Get([]byte(*user))
+					if string(u) == "" {
+						colors.Red.Println("User not found")
+						os.Exit(1)
+					}
+				} else {
+					c := b.Cursor()
+					for u, k := c.First(); k != nil; u, k = c.Next() {
+						if string(k) == *key {
+							*user = string(u)
+							break
+						}
+					}
+					if *user == "" {
+						colors.Red.Println("User not found")
+						os.Exit(1)
 					}
 				}
-				if *user == "" {
-					colors.Red.Println("User not found")
-					os.Exit(1)
-				}
 				err := b.Delete([]byte(*user))
 				if err != nil {
 					colors.Red.Println(err)
@@ -131,21 +124,15 @@ func main() {
 				}
 				return nil
 			})
-			colors.Green.Println("Key deleted")
+			colors.Green.Println("User removed")
 			os.Exit(0)
-		} else {
-			colors.Red.Println("You must specify a user or key, and/or IP address")
-			os.Exit(1)
-		}
-		if *user == "" {
-			if *key == "" {
-				colors.Red.Println("You must specify a user or key")
+		} else if *user == "" && *key == "" {
+			if *ip == "" {
+				colors.Red.Println("You must specify a user or key, and/or IP address")
 				os.Exit(1)
 			}
-			// TODO: Implement delete key from server
-			colors.Green.Println("Key deleted from server")
-			os.Exit(0)
-
+			colors.Red.Println("You must specify a user or key")
+			os.Exit(1)
 		}
 	}
 
