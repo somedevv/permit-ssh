@@ -19,7 +19,7 @@ func CallClear() {
 func AddKey(ip string, key string) {
 	colors.Yellow.Printf("Checking if key already exists in server [%s]\n", ip)
 	// Checks if the key already exists
-	cmd := exec.Command("ssh", ip, "grep -Fxq "+key+" .ssh/authorized_keys")
+	cmd := exec.Command("ssh", ip, "grep -Fxq '"+key+"' .ssh/authorized_keys")
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
@@ -43,7 +43,7 @@ func AddKey(ip string, key string) {
 func DeleteKey(ip string, key string) {
 	colors.Yellow.Printf("Checking if key exists in [%s]\n", ip)
 	// Checks if the key already exists
-	cmd := exec.Command("ssh", ip, "grep -Fxq "+key+" .ssh/authorized_keys")
+	cmd := exec.Command("ssh", ip, "grep -Fxq '"+key+"' .ssh/authorized_keys")
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
