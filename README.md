@@ -24,31 +24,31 @@ permit -key RSA... -user example -ip root@XX.XX.XX.XX
 
 This tool depends, for now, in your ssh config to authenticate into servers.
 
-## Options
+## Flags
 
 ``` text
- -help, --help
-  Prints help information.
+  --version           Displays the program version string.
 
- -user, --user
-  User to add.
+  -h --help           Displays help with available flag, subcommand, and
+                      positional valueparameters.
 
- -key, --key
-  SSH key to add.
- 
- -ip, --ip
-  IP address of the machine.
+  -del --delete       Delete a user or key. If IP is set, the user will be
+                      deleted from the server, otherwise, the user will be
+                      deleted from the database
 
- -list, --list
-  List stored users.
+  -u --user           The user to add or delete
 
- -del, --del
-  Delete saved user in DB.
+  -k --key            The key to add or delete
+
+  -ip --address       The IP of the server to add or delete the user
+
+  -l --list           List all the users in the database
+
+  -i --interactive    Interactive mode
 
    // TODO //
 
- -s, --search
-  Search for user.
+  -s, --search        Search for user.
  
    // TODO //
 ```
