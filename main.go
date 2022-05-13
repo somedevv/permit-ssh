@@ -80,10 +80,10 @@ func main() {
 	}
 
 	if *delete == true {
-		if *ip != "" {
+		if *ip != "" && *key != "" {
 			utils.DeleteKey(*ip, *key)
 			os.Exit(0)
-		} else if *user != "" {
+		} else if *ip != "" && *user != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
 				u := b.Get([]byte(*user))
@@ -91,15 +91,10 @@ func main() {
 					colors.Red.Println("User not found")
 					os.Exit(1)
 				}
-				err := b.Delete([]byte(*user))
-				if err != nil {
-					colors.Red.Println(err)
-					os.Exit(1)
-				}
 				return nil
 			})
-			colors.Green.Println("User deleted")
-			return
+			utils.DeleteKey(*ip, *key)
+			os.Exit(0)
 		} else if *user != "" || *key != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
