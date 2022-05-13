@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -41,23 +40,26 @@ func main() {
 	// TODO: Locate automatically the database file
 	db, err := bolt.Open(os.Getenv("HOME")+"/.local/bin/.data/permit.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
-		log.Fatal(err)
+		colors.Red.Println(err)
+		os.Exit(1)
 	}
 
 	// Create bucket if it doesn't exist
 	db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte("DataBucket"))
 		if err != nil {
-			log.Fatalf("create bucket: %s", err)
+			colors.Red.Println("create bucket: %s", err)
+			os.Exit(1)
 		}
 		return nil
 	})
 
 	if *interactive == true {
 		if err := interactive_mode(db); err != nil {
-			log.Fatal(err)
+			colors.Red.Println(err)
+			os.Exit(1)
 		}
-		return
+		os.Exit(0)
 	}
 
 	// If true print all saved users and exit
@@ -74,39 +76,14 @@ func main() {
 			}
 			return nil
 		})
-		return
+		os.Exit(0)
 	}
 
 	if *delete == true {
-		if *ip == "" {
-			if *user == "" {
-				if *key == "" {
-					colors.Red.Println("You must specify a user or key, and/or IP address")
-					os.Exit(1)
-				}
-				db.Update(func(tx *bolt.Tx) error {
-					b := tx.Bucket([]byte("DataBucket"))
-					c := b.Cursor()
-					for k, v := c.First(); k != nil; k, v = c.Next() {
-						if string(v) == *key {
-							*user = string(k)
-							break
-						}
-					}
-					if *user == "" {
-						colors.Red.Println("User not found")
-						os.Exit(1)
-					}
-					err := b.Delete([]byte(*user))
-					if err != nil {
-						colors.Red.Println(err)
-						os.Exit(1)
-					}
-					return nil
-				})
-				colors.Green.Println("Key deleted")
-				return
-			}
+		if *ip != "" {
+			utils.DeleteKey(*ip, *key)
+			os.Exit(0)
+		} else if *user != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
 				u := b.Get([]byte(*user))
@@ -123,6 +100,32 @@ func main() {
 			})
 			colors.Green.Println("User deleted")
 			return
+		} else if *user != "" || *key != "" {
+			db.Update(func(tx *bolt.Tx) error {
+				b := tx.Bucket([]byte("DataBucket"))
+				c := b.Cursor()
+				for k, v := c.First(); k != nil; k, v = c.Next() {
+					if string(v) == *key {
+						*user = string(k)
+						break
+					}
+				}
+				if *user == "" {
+					colors.Red.Println("User not found")
+					os.Exit(1)
+				}
+				err := b.Delete([]byte(*user))
+				if err != nil {
+					colors.Red.Println(err)
+					os.Exit(1)
+				}
+				return nil
+			})
+			colors.Green.Println("Key deleted")
+			os.Exit(0)
+		} else {
+			colors.Red.Println("You must specify a user or key, and/or IP address")
+			os.Exit(1)
 		}
 		if *user == "" {
 			if *key == "" {
@@ -131,7 +134,7 @@ func main() {
 			}
 			// TODO: Implement delete key from server
 			colors.Green.Println("Key deleted from server")
-			return
+			os.Exit(0)
 
 		}
 	}
@@ -139,7 +142,7 @@ func main() {
 	if *user == "" && *key == "" || *ip == "" && (*user == "" && *key == "") {
 		fmt.Println("Usage: main.go")
 		flag.PrintDefaults()
-		return
+		os.Exit(0)
 	}
 
 	// If *user and *key exist
@@ -172,6 +175,7 @@ func main() {
 			return nil
 		})
 		colors.Green.Println("User saved successfully")
+
 		// If *user exist but *key not
 	} else if *user != "" && *key == "" {
 		db.View(func(tx *bolt.Tx) error {
@@ -197,7 +201,7 @@ func main() {
 	}
 
 	defer db.Close()
-	return
+	os.Exit(0)
 
 }
 
