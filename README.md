@@ -22,6 +22,8 @@ permit -user example -ip root@XX.XX.XX.XX
 permit -key RSA... -user example -ip root@XX.XX.XX.XX
 ```
 
+This tool depends, for now, in your ssh config to authenticate into servers.
+
 ## Options
 
 ``` text
