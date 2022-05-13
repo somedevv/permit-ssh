@@ -86,11 +86,12 @@ func main() {
 		} else if *ip != "" && *user != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
-				u := b.Get([]byte(*user))
-				if string(u) == "" {
+				k := b.Get([]byte(*user))
+				if string(k) == "" {
 					colors.Red.Println("User not found")
 					os.Exit(1)
 				}
+				*key = string(k)
 				return nil
 			})
 			utils.DeleteKey(*ip, *key)

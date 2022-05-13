@@ -50,11 +50,11 @@ func DeleteKey(ip string, key string) {
 	if err == nil {
 		// If the key exists, it's removed from the authorized_keys file
 		colors.Yellow.Println("Removing key...")
-		cmd = exec.Command("sed", "'/"+key+"/d' .ssh/authorized_keys")
+		cmd = exec.Command("ssh", ip, `sudo sed '\%`+key+"%"+" d' .ssh/authorized_keys > .ssh/authorized_keys.tmp && sudo mv .ssh/authorized_keys.tmp .ssh/authorized_keys")
 		cmd.Stdout = &out
 		err = cmd.Run()
 		if err != nil {
-			colors.Red.Printf("Error while deleting key: %s\n", err)
+			colors.Red.Printf("Error while trying to remove the key: %s\n", err)
 			os.Exit(1)
 		}
 		colors.Green.Println("Key removed successfully")
