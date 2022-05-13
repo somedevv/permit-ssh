@@ -1,39 +1,45 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/boltdb/bolt"
+	"github.com/integrii/flaggy"
 	"github.com/somedevv/permit-ssh/colors"
 	"github.com/somedevv/permit-ssh/utils"
 )
 
+var version = ""
+
 var (
-	// FLAGS
-	user        *string
-	key         *string
-	list_users  *bool
-	interactive *bool
-	ip          *string
-	delete      *bool
+	// FLAG VARIABLES
+	user        string
+	key         string
+	ip          string
+	list_users  bool
+	interactive bool
+	delete      bool
 )
 
 func init() {
-	user = flag.String("user", "", "Username")
-	key = flag.String("key", "", "Pub RSA key")
-	ip = flag.String("ip", "", "IP address of the server")
-	list_users = flag.Bool("list", false, "List all saved users. If set all other flags are ignocolors.red")
-	interactive = flag.Bool("i", false, "Activate interactive mode. If set all other flags are ignocolors.red")
-	delete = flag.Bool("del", false, "Delete a user or key. If IP is set, the user will be deleted from the server, otherwise, the user will be deleted from the database")
+	flaggy.SetName("permit")
+	flaggy.SetDescription("Your own SSH key manager and friend (v0.1)")
+	flaggy.SetVersion(version)
+	flaggy.DefaultParser.AdditionalHelpPrepend = "https://github.com/somedevv/permit-ssh"
+
+	flaggy.Bool(&delete, "del", "delete", "Delete a user or key. If IP is set, the user will be deleted from the server, otherwise, the user will be deleted from the database")
+	flaggy.String(&user, "u", "user", "The user to add or delete")
+	flaggy.String(&key, "k", "key", "The key to add or delete")
+	flaggy.String(&ip, "ip", "address", "The IP of the server to add or delete the user")
+	flaggy.Bool(&list_users, "l", "list", "List all the users in the database")
+	flaggy.Bool(&interactive, "i", "interactive", "Interactive mode")
+
+	flaggy.Parse()
 }
 
 func main() {
-
-	flag.Parse()
 
 	// Open the permit.db data file in the data directory.
 	// It will be created if it doesn't exist.
@@ -54,7 +60,7 @@ func main() {
 		return nil
 	})
 
-	if *interactive == true {
+	if interactive == true {
 		if err := interactive_mode(db); err != nil {
 			colors.Red.Println(err)
 			os.Exit(1)
@@ -64,7 +70,7 @@ func main() {
 
 	// If true print all saved users and exit
 	// TODO: Make the print prettier
-	if *list_users == true {
+	if list_users == true {
 		db.View(func(tx *bolt.Tx) error {
 			// Assume bucket exists and has keys
 			b := tx.Bucket([]byte("DataBucket"))
@@ -79,28 +85,28 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *delete == true {
-		if *ip != "" && *key != "" {
-			utils.DeleteKey(*ip, *key)
+	if delete == true {
+		if ip != "" && key != "" {
+			utils.DeleteKey(ip, key)
 			os.Exit(0)
-		} else if *ip != "" && *user != "" {
+		} else if ip != "" && user != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
-				k := b.Get([]byte(*user))
+				k := b.Get([]byte(user))
 				if string(k) == "" {
 					colors.Red.Println("User not found")
 					os.Exit(1)
 				}
-				*key = string(k)
+				key = string(k)
 				return nil
 			})
-			utils.DeleteKey(*ip, *key)
+			utils.DeleteKey(ip, key)
 			os.Exit(0)
-		} else if *user != "" || *key != "" {
+		} else if user != "" || key != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
-				if *user != "" {
-					u := b.Get([]byte(*user))
+				if user != "" {
+					u := b.Get([]byte(user))
 					if string(u) == "" {
 						colors.Red.Println("User not found")
 						os.Exit(1)
@@ -108,17 +114,17 @@ func main() {
 				} else {
 					c := b.Cursor()
 					for u, k := c.First(); k != nil; u, k = c.Next() {
-						if string(k) == *key {
-							*user = string(u)
+						if string(k) == key {
+							user = string(u)
 							break
 						}
 					}
-					if *user == "" {
+					if user == "" {
 						colors.Red.Println("User not found")
 						os.Exit(1)
 					}
 				}
-				err := b.Delete([]byte(*user))
+				err := b.Delete([]byte(user))
 				if err != nil {
 					colors.Red.Println(err)
 					os.Exit(1)
@@ -127,8 +133,8 @@ func main() {
 			})
 			colors.Green.Println("User removed")
 			os.Exit(0)
-		} else if *user == "" && *key == "" {
-			if *ip == "" {
+		} else if user == "" && key == "" {
+			if ip == "" {
 				colors.Red.Println("You must specify a user or key, and/or IP address")
 				os.Exit(1)
 			}
@@ -137,32 +143,26 @@ func main() {
 		}
 	}
 
-	if *user == "" && *key == "" || *ip == "" && (*user == "" && *key == "") {
-		fmt.Println("Usage: main.go")
-		flag.PrintDefaults()
-		os.Exit(0)
-	}
-
-	// If *user and *key exist
-	if *user != "" && *key != "" {
+	// If user and key exist
+	if user != "" && key != "" {
 		db.Update(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte("DataBucket"))
-			v := b.Get([]byte(*user))
+			v := b.Get([]byte(user))
 
-			// Checks if the *key of the user equals the one stocolors.red in the db
-			if string(v) != *key {
+			// Checks if the key of the user equals the one stocolors.red in the db
+			if string(v) != key {
 
 				// If the key is empty, the user didn't exist
 				// TODO: Prompt user for confirmation
 				if string(v) == "" {
 					colors.Yellow.Println("Saving user...")
 
-				} else { // Else, the *key stocolors.red is different from the inputed one // TODO: Prompt the user to confirm *key update
+				} else { // Else, the key stocolors.red is different from the inputed one // TODO: Prompt the user to confirm key update
 					colors.Yellow.Println("Updating user key...")
 				}
 
 				// The key is added to the DB and associated with the user
-				if err := b.Put([]byte(*user), []byte(*key)); err != nil {
+				if err := b.Put([]byte(user), []byte(key)); err != nil {
 					colors.Red.Printf("Error: %s\n", err.Error())
 					os.Exit(1)
 				}
@@ -174,28 +174,28 @@ func main() {
 		})
 		colors.Green.Println("User saved successfully")
 
-		// If *user exist but *key not
-	} else if *user != "" && *key == "" {
+		// If user exist but key not
+	} else if user != "" && key == "" {
 		db.View(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte("DataBucket"))
-			v := b.Get([]byte(*user))
+			v := b.Get([]byte(user))
 
 			// If the key is empty the user doesn't exist, the program quits
 			// because there is no supplied key to store
 			// TODO: Prompt user if they want to add the user by providing the key insted of quitting
 			if string(v) == "" {
 				colors.Red.Printf("The user ")
-				colors.WhiteBold.Print(*user)
+				colors.WhiteBold.Print(user)
 				colors.Red.Println(" doesn't exist")
 				os.Exit(1)
 			}
-			*key = string(v)
+			key = string(v)
 			return nil
 		})
 	}
 
-	if *ip != "" {
-		utils.AddKey(*ip, *key)
+	if ip != "" {
+		utils.AddKey(ip, key)
 	}
 
 	defer db.Close()

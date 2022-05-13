@@ -6,6 +6,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.4
 	github.com/boltdb/bolt v1.3.1
 	github.com/fatih/color v1.13.0
+	github.com/integrii/flaggy v1.5.1
 )
 
 require (
