@@ -13,13 +13,13 @@ Usage examples:
 
 ``` bash
 # Only with a key
-permit -key RSA... -ip root@XX.XX.XX.XX
+permit -k RSA... -ip root@XX.XX.XX.XX
 
 # Only with a saved user
-permit -user example -ip root@XX.XX.XX.XX
+permit -u example -ip root@XX.XX.XX.XX
 
 # Both
-permit -key RSA... -user example -ip root@XX.XX.XX.XX
+permit -k RSA... -u example -ip root@XX.XX.XX.XX
 ```
 
 This tool depends, for now, in your ssh config to authenticate into servers.
