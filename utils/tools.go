@@ -40,6 +40,30 @@ func AddKey(ip string, key string) {
 	}
 }
 
+func DeleteKey(ip string, key string) {
+	colors.Yellow.Printf("Checking if key exists in [%s]\n", ip)
+	// Checks if the key already exists
+	cmd := exec.Command("ssh", ip, "grep -Fxq "+key+" .ssh/authorized_keys")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err == nil {
+		// If the key exists, it's removed from the authorized_keys file
+		colors.Yellow.Println("Removing key...")
+		cmd = exec.Command("sed", "'/"+key+"/d' .ssh/authorized_keys")
+		cmd.Stdout = &out
+		err = cmd.Run()
+		if err != nil {
+			colors.Red.Printf("Error while deleting key: %s\n", err)
+			os.Exit(1)
+		}
+		colors.Green.Println("Key removed successfully")
+	} else {
+		// If the key doesn't exist, the program quits
+		colors.Yellow.Printf("Key not found in [%s]\n", ip)
+	}
+}
+
 func PrintKeyandUser(k string, v string) {
 	colors.Green.Print("USER: ")
 	colors.White.Printf("%s   ", k)
