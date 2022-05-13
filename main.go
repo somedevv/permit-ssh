@@ -95,13 +95,28 @@ func main() {
 			})
 			utils.DeleteKey(*ip, *key)
 			os.Exit(0)
-		} else if *user != "" || *key != "" {
+		} else if *user != "" {
+			db.Update(func(tx *bolt.Tx) error {
+				b := tx.Bucket([]byte("DataBucket"))
+				u := b.Get([]byte(*user))
+				if string(u) == "" {
+					colors.Red.Println("User not found")
+					os.Exit(1)
+				}
+				err := b.Delete([]byte(*user))
+				if err != nil {
+					colors.Red.Println(err)
+					os.Exit(1)
+				}
+				return nil
+			})
+		} else if *key != "" {
 			db.Update(func(tx *bolt.Tx) error {
 				b := tx.Bucket([]byte("DataBucket"))
 				c := b.Cursor()
-				for k, v := c.First(); k != nil; k, v = c.Next() {
-					if string(v) == *key {
-						*user = string(k)
+				for u, k := c.First(); k != nil; u, k = c.Next() {
+					if string(k) == *key {
+						*user = string(u)
 						break
 					}
 				}
