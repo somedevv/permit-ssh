@@ -11,7 +11,8 @@ import (
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-var version = "0.1 release"
+// Version of the program, set at buildtime with -ldflags "-X main.version=X"
+var version = ""
 
 var (
 	// FLAG VARIABLES
