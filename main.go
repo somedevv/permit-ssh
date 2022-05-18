@@ -21,7 +21,7 @@ var (
 	ip   string
 
 	// SUBCOMMANDS
-	delete      *flaggy.Subcommand
+	remove      *flaggy.Subcommand
 	add         *flaggy.Subcommand
 	list        *flaggy.Subcommand
 	interactive *flaggy.Subcommand
@@ -37,11 +37,11 @@ func init() {
 	//---------SUBCOMMANDS---------//
 
 	//------DELETE------//
-	delete = flaggy.NewSubcommand("remove")
-	delete.String(&user, "u", "user", "The user to delete")
-	delete.String(&key, "k", "key", "The key to delete")
-	delete.String(&ip, "ip", "address", "The IP of the server to delete the user")
-	flaggy.AttachSubcommand(delete, 1)
+	remove = flaggy.NewSubcommand("remove")
+	remove.String(&user, "u", "user", "The user to remove")
+	remove.String(&key, "k", "key", "The key to remove")
+	remove.String(&ip, "ip", "address", "The IP of the server to remove the user")
+	flaggy.AttachSubcommand(remove, 1)
 
 	//------ADD------//
 	add = flaggy.NewSubcommand("add")
@@ -106,62 +106,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	if delete.Used {
-		if ip != "" && key != "" {
-			utils.DeleteKey(ip, key)
-			os.Exit(0)
-		} else if ip != "" && user != "" {
-			db.Update(func(tx *bolt.Tx) error {
-				b := tx.Bucket([]byte("DataBucket"))
-				k := b.Get([]byte(user))
-				if string(k) == "" {
-					colors.Red.Println("User not found")
-					os.Exit(1)
-				}
-				key = string(k)
-				return nil
-			})
-			utils.DeleteKey(ip, key)
-			os.Exit(0)
-		} else if user != "" || key != "" {
-			db.Update(func(tx *bolt.Tx) error {
-				b := tx.Bucket([]byte("DataBucket"))
-				if user != "" {
-					u := b.Get([]byte(user))
-					if string(u) == "" {
-						colors.Red.Println("User not found")
-						os.Exit(1)
-					}
-				} else {
-					c := b.Cursor()
-					for u, k := c.First(); k != nil; u, k = c.Next() {
-						if string(k) == key {
-							user = string(u)
-							break
-						}
-					}
-					if user == "" {
-						colors.Red.Println("User not found")
-						os.Exit(1)
-					}
-				}
-				err := b.Delete([]byte(user))
-				if err != nil {
-					colors.Red.Println(err)
-					os.Exit(1)
-				}
-				return nil
-			})
-			colors.Green.Println("User removed")
-			os.Exit(0)
-		} else if user == "" && key == "" {
-			if ip == "" {
-				colors.Red.Println("You must specify a user or key, and/or IP address")
-				os.Exit(1)
-			}
-			colors.Red.Println("You must specify a user or key")
-			os.Exit(1)
-		}
+	if remove.Used {
+		cmd.Remove(db, user, key, ip)
 	}
 
 	if add.Used {
