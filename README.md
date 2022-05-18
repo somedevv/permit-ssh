@@ -23,7 +23,7 @@ permit - Your own SSH key manager and friend, made by somedevv.
     -h --help           Displays help with available flag, subcommand, and positional value parameters.
 ```
 
-This tool depends, for now, in your ssh config to authenticate into servers.
+This tool depends, for now, in your ssh config to authenticate into servers. \
 You need to place the executable on ```$HOME/.local/bin``` and create a folder ```$HOME/.local/bin/.data```
 
 ## To Do
