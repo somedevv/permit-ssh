@@ -11,7 +11,7 @@ import (
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-var version = ""
+var version = "0.1 release"
 
 var (
 	// FLAG VARIABLES
