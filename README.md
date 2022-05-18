@@ -5,50 +5,22 @@ Another CLI tool written in Go.  \
 
 ## Usage
 
-``` bash
-permit [options]
-```
+``` text
+permit - Your own SSH key manager and friend, made by somedevv.
 
-Usage examples:
+  Usage:
+    permit [add|remove] -user x -key "x" -ip xx.xx.xx.xx
 
-``` bash
-# Only with a key
-permit -k RSA... -ip root@XX.XX.XX.XX
+  Subcommands:
+    add             Subcommand 'add' is a command that adds a key to a server or a user.
+    remove          Subcommand 'remove' is a command that deletes an existing user/key from a server or from saved users.
+    help            Prints help
+    list            Lists all saved users and keys
+    interactive     Subcommand 'interactive' puts the tool in interactive mode.
 
-# Only with a saved user
-permit -u example -ip root@XX.XX.XX.XX
-
-# Both
-permit -k RSA... -u example -ip root@XX.XX.XX.XX
+  Flags:
+       --version        Displays the program version string.
+    -h --help           Displays help with available flag, subcommand, and positional value parameters.
 ```
 
 This tool depends, for now, in your ssh config to authenticate into servers.
-
-## Flags
-
-``` text
-  --version           Displays the program version string.
-
-  -h --help           Displays help with available flag, subcommand, and
-                      positional valueparameters.
-
-  -del --delete       Delete a user or key. If IP is set, the user will be
-                      deleted from the server, otherwise, the user will be
-                      deleted from the database
-
-  -u --user           The user to add or delete
-
-  -k --key            The key to add or delete
-
-  -ip --address       The IP of the server to add or delete the user
-
-  -l --list           List all the users in the database
-
-  -i --interactive    Interactive mode
-
-   // TODO //
-
-  -s, --search        Search for user.
- 
-   // TODO //
-```
