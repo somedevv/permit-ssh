@@ -64,4 +64,6 @@ func Remove(db *bolt.DB, user, key, ip string) {
 		colors.Red.Println("You must specify a user or key")
 		os.Exit(1)
 	}
+	defer db.Close()
+	os.Exit(0)
 }
