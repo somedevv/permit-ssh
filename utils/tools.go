@@ -16,7 +16,7 @@ func CallClear() {
 	c.Run()
 }
 
-func AddKey(ip string, key string) {
+func AddKey(ip, key string) {
 	colors.Yellow.Printf("Checking if key already exists in server [%s]\n", ip)
 	// Checks if the key already exists
 	cmd := exec.Command("ssh", ip, "grep -Fxq '"+key+"' .ssh/authorized_keys")
@@ -40,7 +40,7 @@ func AddKey(ip string, key string) {
 	}
 }
 
-func DeleteKey(ip string, key string) {
+func DeleteKey(ip, key string) {
 	colors.Yellow.Printf("Checking if key exists in [%s]\n", ip)
 	// Checks if the key already exists
 	cmd := exec.Command("ssh", ip, "grep -Fxq '"+key+"' .ssh/authorized_keys")
@@ -64,14 +64,14 @@ func DeleteKey(ip string, key string) {
 	}
 }
 
-func PrintKeyandUser(k string, v string) {
+func PrintKeyandUser(k, v string) {
 	colors.Green.Print("USER: ")
 	colors.White.Printf("%s   ", k)
 	colors.Green.Print("KEY: ")
 	colors.White.Printf("%s\n", v)
 }
 
-func PrintKeyandIP(k string, v string) {
+func PrintKeyandIP(k, v string) {
 	colors.Green.Print("KEY: ")
 	colors.White.Printf("%s   ", k)
 	colors.Green.Print("IP: ")
