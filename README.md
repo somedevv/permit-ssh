@@ -19,7 +19,7 @@ permit - Your own SSH key manager and friend, made by somedevv.
     interactive     Subcommand 'interactive' puts the tool in interactive mode.
 
   Flags:
-       --version        Displays the program version string.
+    -v --version        Displays the program version string.
     -h --help           Displays help with available flag, subcommand, and positional value parameters.
 ```
 
