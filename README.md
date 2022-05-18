@@ -24,3 +24,12 @@ permit - Your own SSH key manager and friend, made by somedevv.
 ```
 
 This tool depends, for now, in your ssh config to authenticate into servers.
+You need to place the executable on ```$HOME/.local/bin``` and create a folder ```$HOME/.local/bin/.data```
+
+## To Do
+
+- [ ] Configuration file
+- [ ] Installer
+- [ ] Full featured Interactive mode
+- [ ] AWS Integration for EC2 instances
+- [ ] Suport for external DB
