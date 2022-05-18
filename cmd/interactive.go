@@ -1,13 +1,15 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/boltdb/bolt"
 	"github.com/somedevv/permit-ssh/colors"
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-func Interactive_mode(db *bolt.DB) error {
+func Interactive(db *bolt.DB) {
 	utils.CallClear()
 
 	answers := struct {
@@ -18,13 +20,18 @@ func Interactive_mode(db *bolt.DB) error {
 
 	err := survey.Ask(utils.SimpleConnection, &answers)
 	if err != nil {
-		return err
+		colors.Red.Println(err)
+		os.Exit(1)
 	}
 
 	utils.CallClear()
 
 	utils.PrintKeyandIP(answers.Key, answers.Ip)
-	survey.AskOne(&utils.Prompt_confirmation, &answers.Confirmation, survey.WithValidator(survey.Required))
+	err = survey.AskOne(&utils.Prompt_confirmation, &answers.Confirmation, survey.WithValidator(survey.Required))
+	if err != nil {
+		colors.Red.Println(err)
+		os.Exit(1)
+	}
 
 	if answers.Confirmation == "Yes" {
 		utils.AddKey(answers.Ip, answers.Key)
@@ -33,5 +40,5 @@ func Interactive_mode(db *bolt.DB) error {
 	}
 
 	defer db.Close()
-	return nil
+	os.Exit(0)
 }

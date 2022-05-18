@@ -8,7 +8,6 @@ import (
 	"github.com/integrii/flaggy"
 	"github.com/somedevv/permit-ssh/cmd"
 	"github.com/somedevv/permit-ssh/colors"
-	"github.com/somedevv/permit-ssh/utils"
 )
 
 // Version of the program, set at buildtime with -ldflags "-X main.version=X"
@@ -83,27 +82,11 @@ func main() {
 	})
 
 	if interactive.Used {
-		if err := cmd.Interactive_mode(db); err != nil {
-			colors.Red.Println(err)
-			os.Exit(1)
-		}
-		os.Exit(0)
+		cmd.Interactive(db)
 	}
 
 	if list.Used {
-		// TODO: Make the print prettier
-		db.View(func(tx *bolt.Tx) error {
-			// Assume bucket exists and has keys
-			b := tx.Bucket([]byte("DataBucket"))
-
-			c := b.Cursor()
-
-			for k, v := c.First(); k != nil; k, v = c.Next() {
-				utils.PrintKeyandUser(string(k), string(v))
-			}
-			return nil
-		})
-		os.Exit(0)
+		cmd.List(db)
 	}
 
 	if remove.Used {
