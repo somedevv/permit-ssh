@@ -26,9 +26,17 @@ permit - Your own SSH key manager and friend, made by somedevv.
 This tool depends, for now, in your ssh config to authenticate into servers. \
 You need to place the executable on ```$HOME/.local/bin``` and create a folder ```$HOME/.local/bin/.permit_data```
 
+## Config (beta)
+
+Create a file ```$HOME/.local/bin/.permit_data/config.json``` with the following content:
+
+``` yaml
+db type: local
+```
+
 ## To Do
 
-- [ ] Configuration file
+- [x] Configuration file
 - [ ] Installer
 - [ ] Full featured Interactive mode
 - [ ] AWS Integration for EC2 instances

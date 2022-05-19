@@ -2,12 +2,11 @@ package main
 
 import (
 	"os"
-	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/integrii/flaggy"
 	"github.com/somedevv/permit-ssh/cmd"
-	"github.com/somedevv/permit-ssh/colors"
+	"github.com/somedevv/permit-ssh/conf"
+	"github.com/somedevv/permit-ssh/utils"
 )
 
 // Version of the program, set at buildtime with -ldflags "-X main.version=X"
@@ -24,9 +23,14 @@ var (
 	add         *flaggy.Subcommand
 	list        *flaggy.Subcommand
 	interactive *flaggy.Subcommand
+
+	// Configuration
+	config conf.Config
 )
 
 func init() {
+	// Load the config file
+	config.GetConf()
 
 	//------META------//
 	flaggy.SetName("permit")
@@ -63,24 +67,13 @@ func init() {
 }
 
 func main() {
-
-	// Open the permit.db data file in the data directory.
-	// It will be created if it doesn't exist.
-	// TODO: Locate automatically the database file
-	db, err := bolt.Open(os.Getenv("HOME")+"/.local/bin/.permit_data/users.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
-	if err != nil {
-		colors.Red.Println(err)
-		os.Exit(1)
+	if config.DB == "local" {
+		RunWithLocalDB()
 	}
-	// Create bucket if it doesn't exist
-	db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("DataBucket"))
-		if err != nil {
-			colors.Red.Println("create bucket: %s", err)
-			os.Exit(1)
-		}
-		return nil
-	})
+}
+
+func RunWithLocalDB() {
+	db := utils.SetupLocalDB()
 
 	if interactive.Used {
 		cmd.Interactive(db)
