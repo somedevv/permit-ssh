@@ -27,6 +27,7 @@ var (
 )
 
 func init() {
+
 	//------META------//
 	flaggy.SetName("permit")
 	flaggy.SetDescription("Your own SSH key manager and friend, made by somedevv")
@@ -66,7 +67,7 @@ func main() {
 	// Open the permit.db data file in the data directory.
 	// It will be created if it doesn't exist.
 	// TODO: Locate automatically the database file
-	db, err := bolt.Open(os.Getenv("HOME")+"/.local/bin/.data/permit.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	db, err := bolt.Open(os.Getenv("HOME")+"/.local/bin/.permit_data/users.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		colors.Red.Println(err)
 		os.Exit(1)
