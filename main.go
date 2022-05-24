@@ -17,12 +17,18 @@ var (
 	user string
 	key  string
 	ip   string
+	aws  bool
+
+	// AWS FLAG VARIABLES
+	profile string
+	region  string
 
 	// SUBCOMMANDS
 	remove      *flaggy.Subcommand
 	add         *flaggy.Subcommand
 	list        *flaggy.Subcommand
 	interactive *flaggy.Subcommand
+	awsset      *flaggy.Subcommand
 
 	// Configuration
 	config conf.Config
@@ -37,6 +43,11 @@ func init() {
 	flaggy.SetDescription("Your own SSH key manager and friend, made by somedevv")
 	flaggy.SetVersion(version)
 	flaggy.DefaultParser.AdditionalHelpPrepend = "https://github.com/somedevv/permit-ssh"
+
+	//------NESTED SUBCOMMANDS------//
+	awsset = flaggy.NewSubcommand("aws")
+	awsset.String(&profile, "p", "profile", "AWS Profile")
+	awsset.String(&region, "r", "region", "AWS Profile")
 
 	//---------SUBCOMMANDS---------//
 
@@ -56,6 +67,8 @@ func init() {
 
 	//------LIST------//
 	list = flaggy.NewSubcommand("list")
+	list.Bool(&aws, "aws", "aws", "Use AWS CLI")
+	list.AttachSubcommand(awsset, 1)
 	flaggy.AttachSubcommand(list, 1)
 
 	//------INTERACTIVE------//
@@ -80,7 +93,11 @@ func RunWithLocalDB() {
 	}
 
 	if list.Used {
-		cmd.ListLocal(db)
+		if awsset.Used == true {
+			cmd.ListAWS(profile, region)
+		} else {
+			cmd.ListLocal(db)
+		}
 	}
 
 	if remove.Used {
