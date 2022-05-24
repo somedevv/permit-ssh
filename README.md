@@ -5,7 +5,7 @@ Another CLI tool written in Go.  \
 
 ## Install
 
-This tool depends, for now, in your ssh config to authenticate into servers. \
+This tool depends, for now, in your ssh config to authenticate into servers. For AWS support you must have the ```aws cli``` installed and configured. \
 You need to place the executable on ```$HOME/.local/bin``` and create the folder ```$HOME/.local/bin/.permit_data```
 
 ## Usage
