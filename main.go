@@ -94,7 +94,3 @@ func RunWithLocalDB() {
 	defer db.Close()
 	os.Exit(0)
 }
-
-func AWS() {
-
-}
