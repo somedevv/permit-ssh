@@ -14,7 +14,12 @@ You need to place the executable on ```$HOME/.local/bin``` and create the folder
 permit - Your own SSH key manager and friend, made by somedevv.
 
   Usage:
+
+    // WITH IP
     permit [add|remove] -user x -key "x" -ip xx.xx.xx.xx
+
+    // WITH AWS
+    permit [add|remove] -user x -key "x" aws --instance x --region x --profile x
 
   Subcommands:
     add             Subcommand 'add' is a command that adds a key to a server or a user.
