@@ -42,4 +42,4 @@ db type: local
 - [ ] Installer
 - [ ] Full featured Interactive mode
 - [x] AWS Integration for EC2 instances
-- [ ] Suport for external DB
+- [ ] Support for external DB
