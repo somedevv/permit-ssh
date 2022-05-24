@@ -137,6 +137,10 @@ func RunWithLocalDB() {
 		}
 
 		if awsset.Used == true {
+			if profile == "" && region == "" {
+				colors.Red.Println("Error: Atleast AWS profile or region must be set")
+				os.Exit(1)
+			}
 			cmd.AddWithAWS(profile, region, instance, key)
 
 		} else if ip != "" {
