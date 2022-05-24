@@ -40,7 +40,7 @@ func CheckIPAddress(ip string) error {
 	}
 }
 
-func GetAWSInstance(profile, region, instance, key string) string {
+func GetAWSInstance(profile, region, instance string) string {
 	var cmd *exec.Cmd
 	var data []models.EC2Instance
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/somedevv/permit-ssh/colors"
+	"github.com/somedevv/permit-ssh/utils"
 )
 
 func deleteKeyFromServer(ip, key string) {
@@ -33,54 +34,16 @@ func deleteKeyFromServer(ip, key string) {
 	}
 }
 
-func RemoveLocal(db *bolt.DB, user, key, ip string) {
+func DeleteWithIP(db *bolt.DB, ip, key, user string) {
 	if ip != "" && key != "" {
 		deleteKeyFromServer(ip, key)
-		os.Exit(0)
 	} else if ip != "" && user != "" {
-		db.Update(func(tx *bolt.Tx) error {
-			b := tx.Bucket([]byte("DataBucket"))
-			k := b.Get([]byte(user))
-			if string(k) == "" {
-				colors.Red.Println("User not found")
-				os.Exit(1)
-			}
-			key = string(k)
-			return nil
-		})
+		key := utils.SearchUserInLocalDB(db, user)
+		if key == "" {
+			colors.Red.Printf("User [%s] not found\n", user)
+			os.Exit(1)
+		}
 		deleteKeyFromServer(ip, key)
-		os.Exit(0)
-	} else if user != "" || key != "" {
-		db.Update(func(tx *bolt.Tx) error {
-			b := tx.Bucket([]byte("DataBucket"))
-			if user != "" {
-				u := b.Get([]byte(user))
-				if string(u) == "" {
-					colors.Red.Println("User not found")
-					os.Exit(1)
-				}
-			} else {
-				c := b.Cursor()
-				for u, k := c.First(); k != nil; u, k = c.Next() {
-					if string(k) == key {
-						user = string(u)
-						break
-					}
-				}
-				if user == "" {
-					colors.Red.Println("User not found")
-					os.Exit(1)
-				}
-			}
-			err := b.Delete([]byte(user))
-			if err != nil {
-				colors.Red.Println(err)
-				os.Exit(1)
-			}
-			return nil
-		})
-		colors.Green.Println("User removed")
-		os.Exit(0)
 	} else if user == "" && key == "" {
 		if ip == "" {
 			colors.Red.Println("You must specify a user or key, and/or IP address")
@@ -89,6 +52,29 @@ func RemoveLocal(db *bolt.DB, user, key, ip string) {
 		colors.Red.Println("You must specify a user or key")
 		os.Exit(1)
 	}
-	defer db.Close()
-	os.Exit(0)
+}
+
+func DeleteWithAWS(db *bolt.DB, profile, region, instance, user, key string) {
+	if instance == "" {
+		colors.Red.Println("You must specify an instance")
+		os.Exit(1)
+	}
+
+	var ip string
+	ip = utils.GetAWSInstance(profile, region, instance)
+	if ip == "" {
+		colors.Red.Println("Error: No instance found")
+		os.Exit(1)
+	}
+
+	if key != "" {
+		deleteKeyFromServer(ip, key)
+	} else if user != "" {
+		key = utils.SearchUserInLocalDB(db, user)
+		if key == "" {
+			colors.Red.Printf("User [%s] not found\n", user)
+			os.Exit(1)
+		}
+		deleteKeyFromServer(ip, key)
+	}
 }

@@ -59,6 +59,7 @@ func init() {
 	remove.String(&user, "u", "user", "The user to remove")
 	remove.String(&key, "k", "key", "The key to remove")
 	remove.String(&ip, "ip", "address", "The IP of the server to remove the user")
+	remove.AttachSubcommand(awsset, 1)
 	flaggy.AttachSubcommand(remove, 1)
 
 	//------ADD------//
@@ -110,7 +111,22 @@ func RunWithLocalDB() {
 	}
 
 	if remove.Used {
-		cmd.RemoveLocal(db, user, key, ip)
+		if ip != "" && awsset.Used == false {
+			utils.RemoveKeyFromLocalDB(db, user, key)
+		}
+
+		if (ip != "" && key != "") || (ip != "" && user != "") {
+			cmd.DeleteWithIP(db, ip, key, user)
+		} else if awsset.Used == true {
+			if profile == "" && region == "" {
+				colors.Red.Println("Error: Atleast AWS profile or region must be set")
+				os.Exit(1)
+			}
+			cmd.DeleteWithAWS(db, profile, region, instance, user, key)
+		} else {
+			colors.Red.Println("Error: Atleast IP or AWS Instance with user or key must be set")
+			os.Exit(1)
+		}
 	}
 
 	if add.Used {

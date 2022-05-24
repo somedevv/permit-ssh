@@ -81,3 +81,36 @@ func SearchUserInLocalDB(db *bolt.DB, user string) string {
 	})
 	return key
 }
+
+func RemoveKeyFromLocalDB(db *bolt.DB, user, key string) {
+	db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("DataBucket"))
+		if user != "" {
+			u := b.Get([]byte(user))
+			if string(u) == "" {
+				colors.Red.Println("User not found")
+				os.Exit(1)
+			}
+		} else {
+			c := b.Cursor()
+			for u, k := c.First(); k != nil; u, k = c.Next() {
+				if string(k) == key {
+					user = string(u)
+					break
+				}
+			}
+			if user == "" {
+				colors.Red.Println("User not found")
+				os.Exit(1)
+			}
+		}
+		err := b.Delete([]byte(user))
+		if err != nil {
+			colors.Red.Println(err)
+			os.Exit(1)
+		}
+		return nil
+	})
+	colors.Green.Println("User removed")
+	os.Exit(0)
+}
