@@ -21,8 +21,9 @@ var (
 	aws  bool
 
 	// AWS FLAG VARIABLES
-	profile string
-	region  string
+	profile  string
+	region   string
+	instance string
 
 	// SUBCOMMANDS
 	remove      *flaggy.Subcommand
@@ -49,6 +50,7 @@ func init() {
 	awsset = flaggy.NewSubcommand("aws")
 	awsset.String(&profile, "p", "profile", "AWS Profile")
 	awsset.String(&region, "r", "region", "AWS Profile")
+	awsset.String(&instance, "i", "instance", "AWS Instance name")
 
 	//---------SUBCOMMANDS---------//
 
@@ -64,6 +66,7 @@ func init() {
 	add.String(&user, "u", "user", "The user to add")
 	add.String(&key, "k", "key", "The key to add")
 	add.String(&ip, "ip", "address", "The IP of the server to add the user")
+	add.AttachSubcommand(awsset, 1)
 	flaggy.AttachSubcommand(add, 1)
 
 	//------LIST------//
@@ -111,7 +114,18 @@ func RunWithLocalDB() {
 	}
 
 	if add.Used {
-		cmd.AddLocal(db, user, key, ip)
+		if user != "" && key != "" {
+			utils.SaveKeyInLocalDB(db, user, key, ip)
+		} else if user != "" && key == "" {
+			key = utils.SearchUserInLocalDB(db, user)
+		}
+
+		if awsset.Used == true {
+			cmd.AddWithAWS(profile, region, instance, key)
+
+		} else if ip != "" {
+			utils.AddKey(ip, key)
+		}
 	}
 
 	defer db.Close()
