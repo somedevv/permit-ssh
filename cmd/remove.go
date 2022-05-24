@@ -1,16 +1,41 @@
 package cmd
 
 import (
+	"bytes"
 	"os"
+	"os/exec"
 
 	"github.com/boltdb/bolt"
 	"github.com/somedevv/permit-ssh/colors"
-	"github.com/somedevv/permit-ssh/utils"
 )
+
+func deleteKey(ip, key string) {
+	colors.Yellow.Printf("Checking if key exists in [%s]\n", ip)
+	// Checks if the key already exists
+	cmd := exec.Command("ssh", ip, "grep -Fxq '"+key+"' .ssh/authorized_keys")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err == nil {
+		// If the key exists, it's removed from the authorized_keys file
+		colors.Yellow.Println("Removing key...")
+		cmd = exec.Command("ssh", ip, `sudo sed '\%`+key+"%"+" d' .ssh/authorized_keys > .ssh/authorized_keys.tmp && sudo mv .ssh/authorized_keys.tmp .ssh/authorized_keys")
+		cmd.Stdout = &out
+		err = cmd.Run()
+		if err != nil {
+			colors.Red.Printf("Error while trying to remove the key: %s\n", err)
+			os.Exit(1)
+		}
+		colors.Green.Println("Key removed successfully")
+	} else {
+		// If the key doesn't exist, the program quits
+		colors.Yellow.Printf("Key not found in [%s]\n", ip)
+	}
+}
 
 func RemoveLocal(db *bolt.DB, user, key, ip string) {
 	if ip != "" && key != "" {
-		utils.DeleteKey(ip, key)
+		deleteKey(ip, key)
 		os.Exit(0)
 	} else if ip != "" && user != "" {
 		db.Update(func(tx *bolt.Tx) error {
@@ -23,7 +48,7 @@ func RemoveLocal(db *bolt.DB, user, key, ip string) {
 			key = string(k)
 			return nil
 		})
-		utils.DeleteKey(ip, key)
+		deleteKey(ip, key)
 		os.Exit(0)
 	} else if user != "" || key != "" {
 		db.Update(func(tx *bolt.Tx) error {
