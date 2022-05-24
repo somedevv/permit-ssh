@@ -124,7 +124,7 @@ func RunWithLocalDB() {
 			cmd.AddWithAWS(profile, region, instance, key)
 
 		} else if ip != "" {
-			utils.AddKey(ip, key)
+			cmd.AddWithIP(ip, key)
 		}
 	}
 
