@@ -34,7 +34,7 @@ func InteractiveLocal(db *bolt.DB) {
 	}
 
 	if answers.Confirmation == "Yes" {
-		addKey(answers.Ip, answers.Key)
+		addKeyToServer(answers.Ip, answers.Key)
 	} else {
 		colors.Red.Println("Key not added")
 	}

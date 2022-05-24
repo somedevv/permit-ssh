@@ -9,7 +9,7 @@ import (
 	"github.com/somedevv/permit-ssh/colors"
 )
 
-func deleteKey(ip, key string) {
+func deleteKeyFromServer(ip, key string) {
 	colors.Yellow.Printf("Checking if key exists in [%s]\n", ip)
 	// Checks if the key already exists
 	cmd := exec.Command("ssh", ip, "grep -Fxq '"+key+"' .ssh/authorized_keys")
@@ -35,7 +35,7 @@ func deleteKey(ip, key string) {
 
 func RemoveLocal(db *bolt.DB, user, key, ip string) {
 	if ip != "" && key != "" {
-		deleteKey(ip, key)
+		deleteKeyFromServer(ip, key)
 		os.Exit(0)
 	} else if ip != "" && user != "" {
 		db.Update(func(tx *bolt.Tx) error {
@@ -48,7 +48,7 @@ func RemoveLocal(db *bolt.DB, user, key, ip string) {
 			key = string(k)
 			return nil
 		})
-		deleteKey(ip, key)
+		deleteKeyFromServer(ip, key)
 		os.Exit(0)
 	} else if user != "" || key != "" {
 		db.Update(func(tx *bolt.Tx) error {

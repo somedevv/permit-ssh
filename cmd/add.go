@@ -9,7 +9,7 @@ import (
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-func addKey(ip, key string) {
+func addKeyToServer(ip, key string) {
 	colors.Yellow.Printf("Checking if key already exists in server [%s]\n", ip)
 	// Checks if the key already exists
 	cmd := exec.Command("ssh", ip, "grep -Fxq '"+key+"' .ssh/authorized_keys")
@@ -34,7 +34,7 @@ func addKey(ip, key string) {
 }
 
 func AddWithIP(ip, key string) {
-	addKey(ip, key)
+	addKeyToServer(ip, key)
 }
 
 func AddWithAWS(profile, region, instance, key string) {
@@ -47,5 +47,5 @@ func AddWithAWS(profile, region, instance, key string) {
 		colors.Red.Println("Error: No instance found")
 		os.Exit(1)
 	}
-	addKey(ip, key)
+	addKeyToServer(ip, key)
 }
