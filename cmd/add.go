@@ -8,7 +8,7 @@ import (
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-func Add(db *bolt.DB, user, key, ip string) {
+func AddLocal(db *bolt.DB, user, key, ip string) {
 	// If user and key exist
 	if user != "" && key != "" {
 		db.Update(func(tx *bolt.Tx) error {

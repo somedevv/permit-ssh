@@ -7,7 +7,7 @@ import (
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-func List(db *bolt.DB) {
+func ListLocal(db *bolt.DB) {
 	// TODO: Make the print prettier
 	db.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys

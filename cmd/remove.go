@@ -8,7 +8,7 @@ import (
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-func Remove(db *bolt.DB, user, key, ip string) {
+func RemoveLocal(db *bolt.DB, user, key, ip string) {
 	if ip != "" && key != "" {
 		utils.DeleteKey(ip, key)
 		os.Exit(0)

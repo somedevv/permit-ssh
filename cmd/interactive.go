@@ -9,7 +9,7 @@ import (
 	"github.com/somedevv/permit-ssh/utils"
 )
 
-func Interactive(db *bolt.DB) {
+func InteractiveLocal(db *bolt.DB) {
 	utils.CallClear()
 
 	answers := struct {

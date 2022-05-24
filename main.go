@@ -76,21 +76,25 @@ func RunWithLocalDB() {
 	db := utils.SetupLocalDB()
 
 	if interactive.Used {
-		cmd.Interactive(db)
+		cmd.InteractiveLocal(db)
 	}
 
 	if list.Used {
-		cmd.List(db)
+		cmd.ListLocal(db)
 	}
 
 	if remove.Used {
-		cmd.Remove(db, user, key, ip)
+		cmd.RemoveLocal(db, user, key, ip)
 	}
 
 	if add.Used {
-		cmd.Add(db, user, key, ip)
+		cmd.AddLocal(db, user, key, ip)
 	}
 
 	defer db.Close()
 	os.Exit(0)
+}
+
+func AWS() {
+
 }
