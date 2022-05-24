@@ -41,5 +41,5 @@ db type: local
 - [x] Configuration file
 - [ ] Installer
 - [ ] Full featured Interactive mode
-- [ ] AWS Integration for EC2 instances
+- [x] AWS Integration for EC2 instances
 - [ ] Suport for external DB
