@@ -31,9 +31,9 @@ func ListAWS(profile, region string) {
 	var cmd *exec.Cmd
 
 	if region == "" {
-		cmd = exec.Command("aws", "ec2", "describe-instances", "--query", `Reservations[*].Instances[*].{IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value}`, "--output", "text", "--profile", profile)
+		cmd = exec.Command("aws", "ec2", "describe-instances", "--query", `Reservations[*].Instances[*].{IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value}`, "--output", "table", "--profile", profile)
 	} else {
-		cmd = exec.Command("aws", "ec2", "describe-instances", "--query", `Reservations[*].Instances[*].{IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value}`, "--output", "text", "--profile", profile, "--region", region)
+		cmd = exec.Command("aws", "ec2", "describe-instances", "--query", `Reservations[*].Instances[*].{IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value}`, "--output", "table", "--profile", profile, "--region", region)
 	}
 	var out bytes.Buffer
 	cmd.Stdout = &out
