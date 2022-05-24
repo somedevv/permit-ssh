@@ -28,7 +28,13 @@ func ListLocal(db *bolt.DB) {
 }
 
 func ListAWS(profile, region string) {
-	cmd := exec.Command("aws", "ec2", "describe-instances", "--query", `Reservations[*].Instances[*].{IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value}`, "--output", "text", "--profile", profile, "--region", region)
+	var cmd *exec.Cmd
+
+	if region == "" {
+		cmd = exec.Command("aws", "ec2", "describe-instances", "--query", `Reservations[*].Instances[*].{IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value}`, "--output", "text", "--profile", profile)
+	} else {
+		cmd = exec.Command("aws", "ec2", "describe-instances", "--query", `Reservations[*].Instances[*].{IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value}`, "--output", "text", "--profile", profile, "--region", region)
+	}
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()

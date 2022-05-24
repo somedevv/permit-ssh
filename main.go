@@ -5,6 +5,7 @@ import (
 
 	"github.com/integrii/flaggy"
 	"github.com/somedevv/permit-ssh/cmd"
+	"github.com/somedevv/permit-ssh/colors"
 	"github.com/somedevv/permit-ssh/conf"
 	"github.com/somedevv/permit-ssh/utils"
 )
@@ -94,7 +95,12 @@ func RunWithLocalDB() {
 
 	if list.Used {
 		if awsset.Used == true {
+			if profile == "" && region == "" {
+				colors.Red.Println("Error: Atleast AWS profile or region must be set")
+				os.Exit(1)
+			}
 			cmd.ListAWS(profile, region)
+
 		} else {
 			cmd.ListLocal(db)
 		}
