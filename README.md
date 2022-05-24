@@ -3,6 +3,11 @@
 Another CLI tool written in Go.  \
 **Permit** stores users and their SSH pub keys to help automate the task of autorising SSH connection in servers.
 
+## Install
+
+This tool depends, for now, in your ssh config to authenticate into servers. \
+You need to place the executable on ```$HOME/.local/bin``` and create the folder ```$HOME/.local/bin/.permit_data```
+
 ## Usage
 
 ``` text
@@ -22,9 +27,6 @@ permit - Your own SSH key manager and friend, made by somedevv.
        --version        Displays the program version string.
     -h --help           Displays help with available flag, subcommand, and positional value parameters.
 ```
-
-This tool depends, for now, in your ssh config to authenticate into servers. \
-You need to place the executable on ```$HOME/.local/bin``` and create a folder ```$HOME/.local/bin/.permit_data```
 
 ## Config (beta)
 
