@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/boltdb/bolt"
 	"github.com/somedevv/permit-ssh/colors"
 	"github.com/somedevv/permit-ssh/utils"
 )
@@ -34,47 +33,17 @@ func deleteKeyFromServer(ip, key string) {
 	}
 }
 
-func DeleteWithIP(db *bolt.DB, ip, key, user string) {
-	if ip != "" && key != "" {
-		deleteKeyFromServer(ip, key)
-	} else if ip != "" && user != "" {
-		key := utils.SearchUserInLocalDB(db, user)
-		if key == "" {
-			colors.Red.Printf("User [%s] not found\n", user)
-			os.Exit(1)
-		}
-		deleteKeyFromServer(ip, key)
-	} else if user == "" && key == "" {
-		if ip == "" {
-			colors.Red.Println("You must specify a user or key, and/or IP address")
-			os.Exit(1)
-		}
-		colors.Red.Println("You must specify a user or key")
-		os.Exit(1)
-	}
+func DeleteWithIP(ip, key string) {
+	deleteKeyFromServer(ip, key)
 }
 
-func DeleteWithAWS(db *bolt.DB, profile, region, instance, user, key string) {
-	if instance == "" {
-		colors.Red.Println("You must specify an instance")
-		os.Exit(1)
-	}
-
+func DeleteWithAWS(profile, region, instance, key string) {
 	var ip string
+
 	ip = utils.GetAWSInstance(profile, region, instance)
 	if ip == "" {
 		colors.Red.Println("Error: No instance found")
 		os.Exit(1)
 	}
-
-	if key != "" {
-		deleteKeyFromServer(ip, key)
-	} else if user != "" {
-		key = utils.SearchUserInLocalDB(db, user)
-		if key == "" {
-			colors.Red.Printf("User [%s] not found\n", user)
-			os.Exit(1)
-		}
-		deleteKeyFromServer(ip, key)
-	}
+	deleteKeyFromServer(ip, key)
 }

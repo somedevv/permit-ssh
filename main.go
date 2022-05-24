@@ -115,14 +115,22 @@ func RunWithLocalDB() {
 			utils.RemoveKeyFromLocalDB(db, user, key)
 		}
 
-		if (ip != "" && key != "") || (ip != "" && user != "") {
-			cmd.DeleteWithIP(db, ip, key, user)
-		} else if awsset.Used == true {
+		if user != "" && key == "" {
+			key = utils.SearchUserInLocalDB(db, user)
+			if key == "" {
+				colors.Red.Printf("User [%s] not found\n", user)
+				os.Exit(1)
+			}
+		}
+
+		if ip != "" && key != "" {
+			cmd.DeleteWithIP(ip, key)
+		} else if awsset.Used == true && key != "" {
 			if profile == "" && region == "" {
 				colors.Red.Println("Error: Atleast AWS profile or region must be set")
 				os.Exit(1)
 			}
-			cmd.DeleteWithAWS(db, profile, region, instance, user, key)
+			cmd.DeleteWithAWS(profile, region, instance, key)
 		} else {
 			colors.Red.Println("Error: Atleast IP or AWS Instance with user or key must be set")
 			os.Exit(1)
@@ -136,15 +144,18 @@ func RunWithLocalDB() {
 			key = utils.SearchUserInLocalDB(db, user)
 		}
 
-		if awsset.Used == true {
+		if awsset.Used == true && instance != "" && key != "" {
 			if profile == "" && region == "" {
 				colors.Red.Println("Error: Atleast AWS profile or region must be set")
 				os.Exit(1)
 			}
 			cmd.AddWithAWS(profile, region, instance, key)
 
-		} else if ip != "" {
+		} else if ip != "" && key != "" {
 			cmd.AddWithIP(ip, key)
+		} else {
+			colors.Red.Println("Error: Atleast IP or AWS Instance with user or key must be set")
+			os.Exit(1)
 		}
 	}
 
