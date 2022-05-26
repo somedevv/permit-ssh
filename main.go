@@ -144,19 +144,20 @@ func RunWithLocalDB() {
 		} else if user != "" && key == "" {
 			key = utils.SearchUserInLocalDB(db, user)
 		}
+		if awsset.Used == true || ip != "" {
+			if awsset.Used == true && instance != "" && key != "" {
+				if profile == "" && region == "" {
+					colors.Red.Println("Error: At least AWS profile or region must be set")
+					os.Exit(1)
+				}
+				cmd.AddWithAWS(profile, region, instance, key)
 
-		if awsset.Used == true && instance != "" && key != "" {
-			if profile == "" && region == "" {
-				colors.Red.Println("Error: At least AWS profile or region must be set")
+			} else if ip != "" && key != "" {
+				cmd.AddWithIP(ip, key)
+			} else {
+				colors.Red.Println("Error: At least IP or AWS Instance with user or key must be set")
 				os.Exit(1)
 			}
-			cmd.AddWithAWS(profile, region, instance, key)
-
-		} else if ip != "" && key != "" {
-			cmd.AddWithIP(ip, key)
-		} else {
-			colors.Red.Println("Error: At least IP or AWS Instance with user or key must be set")
-			os.Exit(1)
 		}
 	}
 
