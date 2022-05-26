@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/somedevv/permit-ssh/colors"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
