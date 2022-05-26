@@ -6,7 +6,8 @@ Another CLI tool written in Go.  \
 ## Install
 
 This tool depends, for now, in your ssh config to authenticate into servers. For AWS support you must have the ```aws cli``` installed and configured. \
-You need to place the executable on ```$HOME/.local/bin``` and create the folder ```$HOME/.local/bin/.permit_data```
+Rename and place the executable on ```$HOME/.local/bin/permit``` and create the folder ```$HOME/.local/bin/.permit_data```. \
+Then, add it to your path adding ```export PATH="$PATH:$HOME/.local/bin"``` to your ```.*rc``` file.
 
 ## Usage
 
@@ -28,9 +29,17 @@ permit - Your own SSH key manager and friend, made by somedevv.
     list            Lists all saved users and keys
     interactive     Subcommand 'interactive' puts the tool in interactive mode.
 
-  Flags:
-       --version        Displays the program version string.
-    -h --help           Displays help with available flag, subcommand, and positional value parameters.
+  General Flags:
+        --version       Displays the program version string.
+    -h  --help          Displays help with available flag, subcommand, and positional value parameters.
+    -ip --address       IP address of the server.
+    -u  --user          Name of the user.
+    -k  --key           Public key of the user.
+
+  AWS Specific Flags:
+    -i  --instance      Instance ID of the server.
+    -r  --region        AWS region of the server.
+    -p  --profile       AWS profile to use.
 ```
 
 ## Config (beta)
