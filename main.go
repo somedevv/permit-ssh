@@ -18,7 +18,6 @@ var (
 	user string
 	key  string
 	ip   string
-	aws  bool
 
 	// AWS FLAG VARIABLES
 	profile  string
@@ -75,7 +74,6 @@ func init() {
 
 	//------LIST------//
 	list = flaggy.NewSubcommand("list")
-	list.Bool(&aws, "aws", "aws", "Use AWS CLI")
 	list.AttachSubcommand(awsset, 1)
 	flaggy.AttachSubcommand(list, 1)
 
