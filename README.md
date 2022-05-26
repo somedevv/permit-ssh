@@ -37,8 +37,8 @@ permit - Your own SSH key manager and friend, made by somedevv.
     -k  --key           Public key of the user.
 
   AWS Specific Flags:
-    -i  --instance      Instance ID of the server.
-    -r  --region        AWS region of the server.
+    -i  --instance      EC2 Instance name.
+    -r  --region        AWS region to use.
     -p  --profile       AWS profile to use.
 ```
 
