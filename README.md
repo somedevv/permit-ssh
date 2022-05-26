@@ -70,3 +70,9 @@ db type: local
 - [ ] Full featured Interactive mode
 - [x] AWS Integration for EC2 instances
 - [ ] Support for external DB
+
+## License
+
+The GNU General Public License v3 (GPL-3)
+
+Copyright © 2022 somedevv
