@@ -112,7 +112,7 @@ func RunWithLocalDB() {
 	}
 
 	if remove.Used {
-		if ip != "" && awsset.Used == false {
+		if ip == "" && awsset.Used == false {
 			utils.RemoveKeyFromLocalDB(db, user, key)
 		}
 
