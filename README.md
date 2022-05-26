@@ -29,6 +29,9 @@ permit - Your own SSH key manager and friend, made by somedevv.
     list            Lists all saved users and keys
     interactive     Subcommand 'interactive' puts the tool in interactive mode.
 
+  Nested subcommands:
+    aws             Used with: add, remove or list. Uses AWS CLI to list instances, add or remove keys from EC2 linux instances.
+  
   General Flags:
         --version       Displays the program version string.
     -h  --help          Displays help with available flag, subcommand, and positional value parameters.
