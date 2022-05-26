@@ -19,5 +19,5 @@ permit
 .vscode
 .DS_Store
 
-# Secrets
-data
+# Tools for relase
+.release
