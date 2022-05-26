@@ -47,7 +47,7 @@ permit - Your own SSH key manager and friend, made by somedevv.
 
 ## Config (beta)
 
-Create a file ```$HOME/.local/bin/.permit_data/config.json``` with the following content:
+Create a file ```$HOME/.local/bin/.permit_data/config.yaml``` with the following content:
 
 ``` yaml
 db type: local
