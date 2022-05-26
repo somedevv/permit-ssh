@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -31,7 +32,7 @@ func SetupLocalDB() *bolt.DB {
 
 func SaveKeyInLocalDB(db *bolt.DB, user, key, ip string) {
 	// If user and key exist
-	db.Update(func(tx *bolt.Tx) error {
+	if err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("DataBucket"))
 		v := b.Get([]byte(user))
 
@@ -53,11 +54,13 @@ func SaveKeyInLocalDB(db *bolt.DB, user, key, ip string) {
 				os.Exit(1)
 			}
 		} else {
-			colors.Red.Println("User already exists")
-			os.Exit(0)
+			return fmt.Errorf("User already exists, so it will not be added")
 		}
 		return nil
-	})
+	}); err != nil {
+		colors.Red.Println(err.Error())
+		return
+	}
 	colors.Green.Println("User saved successfully")
 }
 

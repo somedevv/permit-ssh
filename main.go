@@ -144,6 +144,7 @@ func RunWithLocalDB() {
 		} else if user != "" && key == "" {
 			key = utils.SearchUserInLocalDB(db, user)
 		}
+
 		if awsset.Used == true || ip != "" {
 			if awsset.Used == true && instance != "" && key != "" {
 				if profile == "" && region == "" {
