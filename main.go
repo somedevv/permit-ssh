@@ -41,12 +41,15 @@ func init() {
 	config.GetConf()
 
 	//------META------//
+
 	flaggy.SetName("permit")
 	flaggy.SetDescription("Your own SSH key manager and friend, made by somedevv")
 	flaggy.SetVersion(version)
 	flaggy.DefaultParser.AdditionalHelpPrepend = "https://github.com/somedevv/permit-ssh"
 
 	//------NESTED SUBCOMMANDS------//
+
+	//AWS
 	awsset = flaggy.NewSubcommand("aws")
 	awsset.String(&profile, "p", "profile", "AWS Profile")
 	awsset.String(&region, "r", "region", "AWS Profile")
