@@ -9,6 +9,16 @@ This tool depends, for now, in your ssh config to authenticate into servers. For
 Rename and place the executable on ```$HOME/.local/bin/permit``` and create the folder ```$HOME/.local/bin/.permit_data/```. \
 Then, add it to your path adding ```export PATH="$PATH:$HOME/.local/bin"``` to your ```.*rc``` file.
 
+### Build it yourself
+
+To build the tool yourself, run the following commands:
+  
+  ```bash
+  git clone https://github.com/somedevv/permit-ssh.git
+  cd permit-ssh
+  go build -o permit main.go
+  ```
+
 ## Usage
 
 ``` text
